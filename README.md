@@ -106,6 +106,8 @@ void pcSerialComUpdate()
             ///CAMBIO: Agregado para TP 04
             case PC_SERIAL_SET_DATE_AND_TIME:
                 pcSerialComSetDateAndTime( receivedChar );
+            break;
+
             default:
                 pcSerialComMode = PC_SERIAL_COMMANDS;
             break;
