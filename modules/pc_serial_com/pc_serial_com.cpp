@@ -30,7 +30,7 @@ Define agregado para TP 04:
 #define TIME_AND_DATE_NB_OF_CHARS 20
 
 /// CAMBIO: Defines para el offset de la cadena de caracteres de fecha y hora. Agregado para TP 04
-#define MONT_OFFSET 5
+#define MONTH_OFFSET 5
 #define DAY_OFFSET 8
 #define HOUR_OFFSET 11
 #define MINUTE_OFFSET 14
@@ -212,7 +212,7 @@ static void setDateAndTime( char *dateAndTimeSequence )
     strncpy(year, dateAndTimeSequence, 4);
     year[4] = '\0';
 
-    strncpy(month, dateAndTimeSequence+MONT_OFFSET, 2);
+    strncpy(month, dateAndTimeSequence+MONTH_OFFSET, 2);
     month[2] = '\0';
 
     strncpy(day, dateAndTimeSequence+DAY_OFFSET, 2);
