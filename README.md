@@ -1,5 +1,8 @@
 # TP 04 - Eliminando Bloqueos
 
+# Ejercicio pedido por el enunciado
+El ejercicio también esta subido en formato **PDF** dentro del repositorio.
+
 ## Bloqueos identificados
 
 Los bloqueos encontrados pertenecen al módulo `pc_serial_com`, en el archivo `modules/pc_serial_com/pc_serial_com.cpp`. En este archivo podemos encontrar el siguiente fragmento de código correspondiente a la funcion `commandSetDateAndTime()`
