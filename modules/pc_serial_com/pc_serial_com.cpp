@@ -12,15 +12,35 @@
 #include "temperature_sensor.h"
 #include "gas_sensor.h"
 #include "event_log.h"
+#include <cstring>
 
 //=====[Declaration of private defines]========================================
 
+/** CAMBIO:
+Define agregado para TP 04:
+ - 4 caracteres por el año + 1 por el espacio = 5
+ - 2 caracteres por el mes + 1 por el espacio = 3
+ - 2 caracteres por el dia + 1 por el espacio = 3
+ - 2 caracteres por las hora + 1 por el espacio = 3
+ - 2 caracteres por los minutos + 1 por el espacio = 3
+ - 2 caracteres por los segundos = 2
+ - 1 caracter mas por el '\0' = 1
+ TOTAL DE CARACTERES = 20
+*/
+#define TIME_AND_DATE_NB_OF_CHARS 20
+/// CAMBIO: Defines para el offset de la cadena de caracteres de fecha y hora. Agregado para TP 04
+#define MONT_OFFSET 5
+#define DAY_OFFSET 8
+#define HOUR_OFFSET 11
+#define MINUTE_OFFSET 14
+#define SECOND_OFFSET 17
 //=====[Declaration of private data types]=====================================
 
 typedef enum{
     PC_SERIAL_COMMANDS,
     PC_SERIAL_GET_CODE,
     PC_SERIAL_SAVE_NEW_CODE,
+    PC_SERIAL_SET_DATE_AND_TIME, /// CAMBIO: Nuevo estado para la FSM, agregado para TP 04
 } pcSerialComMode_t;
 
 //=====[Declaration and initialization of public global objects]===============
@@ -38,6 +58,7 @@ char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 static pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
 static bool codeComplete = false;
 static int numberOfCodeChars = 0;
+static int numberOfDateAndTimeChars = 0; //Agregado para TP04
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -59,6 +80,10 @@ static void commandShowCurrentTemperatureInFahrenheit();
 static void commandSetDateAndTime();
 static void commandShowDateAndTime();
 static void commandShowStoredEvents();
+
+///CAMBIO: Funciones agregadas para TP 04
+static void pcSerialComSetDateAndTime( char receivedChar );
+static void setDateAndTime( char *dateAndTimeSequence );
 
 //=====[Implementations of public functions]===================================
 
@@ -97,6 +122,9 @@ void pcSerialComUpdate()
             case PC_SERIAL_SAVE_NEW_CODE:
                 pcSerialComSaveNewCodeUpdate( receivedChar );
             break;
+
+            case PC_SERIAL_SET_DATE_AND_TIME:
+                pcSerialComSetDateAndTime( receivedChar );
             default:
                 pcSerialComMode = PC_SERIAL_COMMANDS;
             break;
@@ -151,6 +179,55 @@ static void pcSerialComSaveNewCodeUpdate( char receivedChar )
         codeWrite( newCodeSequence );
         pcSerialComStringWrite( "\r\nNew code configured\r\n\r\n" );
     } 
+}
+
+/// CAMBIO: Funcion agregada para TP 04
+static void pcSerialComSetDateAndTime( char receivedChar )
+{
+    static char dateAndTimeSequence[TIME_AND_DATE_NB_OF_CHARS];
+
+    dateAndTimeSequence[numberOfDateAndTimeChars] = receivedChar;
+    numberOfDateAndTimeChars++;
+
+    if ( numberOfDateAndTimeChars >= TIME_AND_DATE_NB_OF_CHARS ) {
+        pcSerialComMode = PC_SERIAL_COMMANDS;
+        numberOfDateAndTimeChars = 0;
+        setDateAndTime( dateAndTimeSequence );
+        pcSerialComStringWrite("Date and time has been set\r\n");
+    }
+}
+
+/// CAMBIO: Funcion agregada para TP 04
+static void setDateAndTime( char *dateAndTimeSequence )
+{
+    char year[5] = "";
+    char month[3] = "";
+    char day[3] = "";
+    char hour[3] = "";
+    char minute[3] = "";
+    char second[3] = "";
+
+    strncpy(year, dateAndTimeSequence, 4);
+    year[4] = '\0';
+
+    strncpy(month, dateAndTimeSequence+MONT_OFFSET, 2);
+    month[2] = '\0';
+
+    strncpy(day, dateAndTimeSequence+DAY_OFFSET, 2);
+    day[2] = '\0';
+
+    strncpy(hour, dateAndTimeSequence+HOUR_OFFSET, 2);
+    hour[2] = '\0';
+    
+    strncpy(minute, dateAndTimeSequence+MINUTE_OFFSET, 2);
+    minute[2] = '\0';
+    
+    strncpy(second, dateAndTimeSequence+SECOND_OFFSET, 2);
+    second[2] = '\0';
+
+    dateAndTimeWrite( atoi(year), atoi(month), atoi(day), 
+        atoi(hour), atoi(minute), atoi(second) );
+    
 }
 
 static void pcSerialComCommandUpdate( char receivedChar )
@@ -251,6 +328,26 @@ static void commandShowCurrentTemperatureInFahrenheit()
     pcSerialComStringWrite( str );  
 }
 
+/// CAMBIO: Nueva funcion commandSetDateAndTime(). Modificada para TP 04
+static void commandSetDateAndTime()
+{
+    pcSerialComStringWrite( "Please enter date and time: " );
+    pcSerialComStringWrite("\r\n- Type four digits for the current year (YYYY) ");
+    pcSerialComStringWrite("\r\n- Type two digits for the current month (MM) (01-12) ");
+    pcSerialComStringWrite("\r\n- Type two digits for the current day (DD) (01-31) ");
+    pcSerialComStringWrite("\r\n- Type two digits for the current hour (hh) (00-23) ");
+    pcSerialComStringWrite("\r\n- Type two digits for the current minutes (mm) (00-59) ");
+    pcSerialComStringWrite("\r\n- Type two digits for the current seconds (ss) (00-59) ");
+    pcSerialComStringWrite("\r\n\r\nRespect the format: ");
+    pcSerialComStringWrite("YYYY MM DD hh mm ss");
+    pcSerialComStringWrite( "\r\n(Note the space between each of the fields)" );
+    pcSerialComStringWrite("\r\n");
+
+    numberOfDateAndTimeChars = 0;
+    pcSerialComMode = PC_SERIAL_SET_DATE_AND_TIME;
+}
+
+/*
 static void commandSetDateAndTime()
 {
     char year[5] = "";
@@ -289,6 +386,7 @@ static void commandSetDateAndTime()
     dateAndTimeWrite( atoi(year), atoi(month), atoi(day), 
         atoi(hour), atoi(minute), atoi(second) );
 }
+*/
 
 static void commandShowDateAndTime()
 {
