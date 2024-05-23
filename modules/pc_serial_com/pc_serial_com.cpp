@@ -28,6 +28,7 @@ Define agregado para TP 04:
  TOTAL DE CARACTERES = 20
 */
 #define TIME_AND_DATE_NB_OF_CHARS 20
+
 /// CAMBIO: Defines para el offset de la cadena de caracteres de fecha y hora. Agregado para TP 04
 #define MONT_OFFSET 5
 #define DAY_OFFSET 8
@@ -227,7 +228,7 @@ static void setDateAndTime( char *dateAndTimeSequence )
 
     dateAndTimeWrite( atoi(year), atoi(month), atoi(day), 
         atoi(hour), atoi(minute), atoi(second) );
-    
+
 }
 
 static void pcSerialComCommandUpdate( char receivedChar )
