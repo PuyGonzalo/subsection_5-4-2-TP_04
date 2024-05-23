@@ -1,7 +1,5 @@
 # TP 04 - Eliminando Bloqueos
 
-A continuación se presenta el ejercicio pedido para el Trabajo Práctico número 4. También se encuentra en formato PDF dentro del respositorio.
-
 ## Bloqueos identificados
 
 Los bloqueos encontrados pertenecen al módulo `pc_serial_com`, en el archivo `modules/pc_serial_com/pc_serial_com.cpp`. En este archivo podemos encontrar el siguiente fragmento de código correspondiente a la funcion `commandSetDateAndTime()`
@@ -154,7 +152,7 @@ static void setDateAndTime( char *dateAndTimeSequence )
     strncpy(year, dateAndTimeSequence, 4);
     year[4] = '\0';
 
-    strncpy(month, dateAndTimeSequence+MONT_OFFSET, 2);
+    strncpy(month, dateAndTimeSequence+MONTH_OFFSET, 2);
     month[2] = '\0';
 
     strncpy(day, dateAndTimeSequence+DAY_OFFSET, 2);
@@ -198,7 +196,11 @@ static void commandSetDateAndTime()
 }
 ```
 
-> [!IMPORTANT]
+Con todos estos cambios, se puede ver que ahora el programa no interrumpe su ejecución a la espera del ingreso de los caracteres, sino que se quedará en uno de los posibles estados de la FSM y por ende ya no estará en estado de "bloqueo".
+
+---
+
+> [!NOTE]
 > 
 > Se tuvieron que agregar algunos `defines` para hacer mas entendible el código. Estos fueron
 > 
@@ -217,7 +219,7 @@ static void commandSetDateAndTime()
 > #define TIME_AND_DATE_NB_OF_CHARS 20
 > 
 > /// CAMBIO: Defines para el offset de la cadena de caracteres de fecha y hora. Agregado para TP 04
-> #define MONT_OFFSET 5
+> #define MONTH_OFFSET 5
 > #define DAY_OFFSET 8
 > #define HOUR_OFFSET 11
 > #define MINUTE_OFFSET 14
